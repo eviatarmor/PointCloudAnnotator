@@ -109,6 +109,88 @@ function raytracePoint(renderArea: HTMLElement, viewer: any, event: MouseEvent) 
 }
 
 /**
+ * Creates an annotation in the 3D viewer.
+ * Includes hover animations and action button bindings (Edit/Delete).
+ * @param viewer - The active Potree Viewer instance.
+ * @param title - The text label for the annotation.
+ * @param x, y, z - The 3D coordinates for placement.
+ */
+function addViewerAnnotation(viewer: any, title: string, x: number, y: number, z: number) {
+    const anno = viewer.scene.addAnnotation([x, y, z], {
+        "title": title,
+        "actions": [
+            // Edit action
+            {
+                "icon": "edit-3-svgrepo-com.svg",
+                "tooltip": "Edit Title",
+                "onclick": async () => {
+                    showLabelDialog("Edit Annotation", async (updatedTitle: string) => {
+                        try {
+                            await annotationService.removeAnnotation(anno.title);
+                            await annotationService.addAnnotation({
+                                x, y, z,
+                                label: updatedTitle
+                            });
+
+                            anno.title = updatedTitle;
+                            anno.domElement.find('.annotation-title').text(updatedTitle);
+                        } catch (error) {
+                            showErrorSnackbar(error);
+                        }
+                    });
+                }
+            },
+            // Remove action
+            {
+                "icon": Potree.resourcePath + "/icons/remove.svg",
+                "onclick": async () => {
+                    showDeleteConfirm(anno.title, async () => {
+                        try {
+                            await annotationService.removeAnnotation(anno.title);
+                            viewer.scene.removeAnnotation(anno);
+                        } catch (error) {
+                            showErrorSnackbar(error);
+                        }
+                    });
+                }
+            }
+        ]
+    });
+
+    // // Select all action icon elements (Edit/Delete) within anno
+    const actions = anno.domElement.find('.annotation-action-icon');
+
+    // Invert the first icon (Edit) to ensure visibility against the dark theme
+    if (actions[0]) {
+        actions[0].style.filter = "invert(100%)";
+    }
+
+    // Hide action icons by default
+    actions.css({
+        "opacity": "0",
+        "width": "0",
+        "overflow": "hidden",
+        "transition": "all 0.2s ease"
+    });
+
+    // Expand and reveal icons when the user hovers over the annotation
+    anno.domElement.on('mouseenter', () => {
+        actions.css({
+            "opacity": "1",
+            "width": "30px"
+        });
+    });
+
+    // Collapse and hide icons when the mouse leaves the annotation area
+    anno.domElement.on('mouseleave', () => {
+        actions.css({
+            "opacity": "0",
+            "width": "0"
+        });
+    });
+}
+
+/**
  * Creates an annotation in both the persistent backend and the 3D viewer.
  * Includes hover animations and action button bindings (Edit/Delete).
  * @param viewer - The active Potree Viewer instance.
@@ -122,78 +204,7 @@ async function addAnnotation(viewer: any, title: string, x: number, y: number, z
             label: title
         });
 
-        const anno = viewer.scene.addAnnotation([x, y, z], {
-            "title": title,
-            "actions": [
-                // Edit action
-                {
-                    "icon": "edit-3-svgrepo-com.svg",
-                    "tooltip": "Edit Title",
-                    "onclick": async () => {
-                        showLabelDialog("Edit Annotation", async (updatedTitle: string) => {
-                            try {
-                                await annotationService.removeAnnotation(anno.title);
-                                await annotationService.addAnnotation({
-                                    x, y, z,
-                                    label: updatedTitle
-                                });
-
-                                anno.title = updatedTitle;
-                                anno.domElement.find('.annotation-title').text(updatedTitle);
-                            } catch (error) {
-                                showErrorSnackbar(error);
-                            }
-                        });
-                    }
-                },
-                // Remove action
-                {
-                    "icon": Potree.resourcePath + "/icons/remove.svg",
-                    "onclick": async () => {
-                        showDeleteConfirm(anno.title, async () => {
-                            try {
-                                await annotationService.removeAnnotation(anno.title);
-                                viewer.scene.removeAnnotation(anno);
-                            } catch (error) {
-                                showErrorSnackbar(error);
-                            }
-                        });
-                    }
-                }
-            ]
-        });
-
-        // // Select all action icon elements (Edit/Delete) within anno
-        const actions = anno.domElement.find('.annotation-action-icon');
-
-        // Invert the first icon (Edit) to ensure visibility against the dark theme
-        if (actions[0]) {
-            actions[0].style.filter = "invert(100%)";
-        }
-
-        // Hide action icons by default
-        actions.css({
-            "opacity": "0",
-            "width": "0",
-            "overflow": "hidden",
-            "transition": "all 0.2s ease"
-        });
-
-        // Expand and reveal icons when the user hovers over the annotation
-        anno.domElement.on('mouseenter', () => {
-            actions.css({
-                "opacity": "1",
-                "width": "30px"
-            });
-        });
-
-        // Collapse and hide icons when the mouse leaves the annotation area
-        anno.domElement.on('mouseleave', () => {
-            actions.css({
-                "opacity": "0",
-                "width": "0"
-            });
-        });
+        addViewerAnnotation(viewer, title, x, y, z);
     } catch (error) {
         showErrorSnackbar(`Failed to add annotation: ${error}`);
     }
@@ -211,7 +222,7 @@ function configureClickableView(renderArea: HTMLElement, viewer: any) {
             const point = raytracePoint(renderArea, viewer, event);
             if (point) {
                 showLabelDialog("New Annotation", async (newTitle) => {
-                    addAnnotation(viewer, newTitle, point.location.x, point.location.y, point.location.z);
+                    await addAnnotation(viewer, newTitle, point.location.x, point.location.y, point.location.z);
                 });
             }
         }
@@ -227,7 +238,7 @@ async function loadAnnotations(viewer: any) {
     try {
         const annotations = await annotationService.getAllAnnotations();
         for (const data of annotations) {
-            await addAnnotation(viewer, data.label, data.x, data.y, data.z);
+            addViewerAnnotation(viewer, data.label, data.x, data.y, data.z);
         }
     } catch (error) {
         showErrorSnackbar(error);
