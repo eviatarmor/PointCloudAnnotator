@@ -1,0 +1,29 @@
+{
+  "name": "point-cloud-annotator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run sam:start\" \"npm run vite:dev\"",
+    "vite:dev": "vite",
+    "sam:start": "sam local start-api --port 3001",
+    "db:start": "docker run -d -p 8000:8000 --name dynamodb-local amazon/dynamodb-local || docker start dynamodb-local",
+    "db:setup": "node scripts/setup-local-db.js",
+    "db:stop": "docker stop dynamodb-local",
+    "setup": "npm run db:start && timeout /t 3 /nobreak && npm run db:setup",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && sam build && sam deploy && npm run deploy:frontend",
+    "deploy:frontend": "aws s3 sync dist/ s3://${S3_BUCKET_NAME:-point-cloud-annotator-frontend} --delete"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.966.0",
+    "@aws-sdk/lib-dynamodb": "^3.966.0"
+  }
+}

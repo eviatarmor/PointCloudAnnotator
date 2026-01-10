@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Point Cloud Annotator Lambda Functions
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        NODE_ENV: development
+        TABLE_NAME: PointCloudAnnotator
+  Api:
+    Cors:
+      AllowOrigin: "'*'"
+      AllowMethods: "'GET,POST,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      MaxAge: "'300'"
+
+Resources:
+  AddAnnotationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/addAnnotation.handler
+      Events:
+        AddAnnotation:
+          Type: Api
+          Properties:
+            Path: /addAnnotation
+            Method: post
+
+  GetAllAnnotationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/getAllAnnotations.handler
+      Events:
+        GetAnnotations:
+          Type: Api
+          Properties:
+            Path: /getAllAnnotations
+            Method: get
+
+  RemoveAnnotationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/removeAnnotation.handler
+      Events:
+        RemoveAnnotation:
+          Type: Api
+          Properties:
+            Path: /removeAnnotation
+            Method: delete

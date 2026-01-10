@@ -1,0 +1,43 @@
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Potree-style Label */
+.form-group label {
+    color: var(--font-color-2);
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Potree-style Input Field */
+.form-control {
+    background-color: var(--bg-dark-color) !important;
+    border: 1px solid var(--color-2) !important;
+    color: var(--font-color-2) !important;
+    padding: 8px 10px;
+    border-radius: 2px;
+    outline: none;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: var(--color-4) !important; /* Blue glow on focus */
+    box-shadow: 0 0 4px var(--color-3);
+}
+
+/* Error Message */
+.error-message {
+    color: #ff5555;
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 500;
+}
