@@ -10,6 +10,7 @@ Please make sure that these are installed on your computer before trying to run 
    - `npm install`
    - `npm run setup`
      - This setup would take care of the rest. (It will create a DynamoDB docker container for AWS, and prepare the local table for the app)
+     - Note: The backend will not work if DynamoDB docker is not running. (`npm run db:start`)
 2. We should be able to run it now! :)
    - `npm run dev`
 
@@ -61,13 +62,13 @@ Please make sure that these are installed on your computer before trying to run 
 
 | Method | Endpoint | Description                   |
 |--------|----------|-------------------------------|
-| POST | `/addAnnotation` | Create new annotation         |
-| GET | `/getAllAnnotations` | Fetch all annotations         |
+| PUT    | `/addAnnotation` | Create new annotation         |
+| GET    | `/getAllAnnotations` | Fetch all annotations         |
 | DELETE | `/removeAnnotation` | Delete annotation by label/ID |
 
 #### Request/Response Examples
 
-**POST /addAnnotation**
+**PUT /addAnnotation**
 ```json
 {
   "label": "Roar",
@@ -121,7 +122,7 @@ Please make sure that these are installed on your computer before trying to run 
 5. Configuring CORS
    - We then need to change:
      - Access-Control-Allow-Origin: Your website URL
-     - Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE
+     - Access-Control-Allow-Methods: GET, PUT, OPTIONS, DELETE
      - Access-Control-Allow-Headers: content-type or *
    - ![CORS example](public/instructions/cors.png)
 6. Lastly, just create a bucket with the default settings, and change its policy to: 

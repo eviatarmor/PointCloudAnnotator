@@ -13,8 +13,8 @@ Globals:
   Api:
     Cors:
       AllowOrigin: "'*'"
-      AllowMethods: "'GET,POST,DELETE,OPTIONS'"
-      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowMethods: "'GET,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type'"
       MaxAge: "'300'"
 
 Resources:
@@ -27,7 +27,7 @@ Resources:
           Type: Api
           Properties:
             Path: /addAnnotation
-            Method: post
+            Method: put
 
   GetAllAnnotationsFunction:
     Type: AWS::Serverless::Function

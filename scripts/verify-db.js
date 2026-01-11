@@ -1,7 +1,7 @@
 import {DescribeTableCommand, DynamoDBClient, ListTablesCommand} from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({
-    endpoint: 'http://host.docker.internal:8000',
+    endpoint: 'http://localhost:8000',
     region: 'us-east-1',
     credentials: {
         accessKeyId: 'dummy',

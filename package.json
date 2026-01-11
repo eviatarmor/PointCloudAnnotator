@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run sam:start\" \"npm run vite:dev\"",
+    "dev": "concurrently \"npm run db:start\" \"npm run sam:start\" \"npm run vite:dev\"",
     "vite:dev": "vite",
     "sam:start": "sam local start-api --port 3001",
     "db:start": "docker run -d -p 8000:8000 --name dynamodb-local amazon/dynamodb-local || docker start dynamodb-local",

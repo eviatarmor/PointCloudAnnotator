@@ -23,12 +23,13 @@ function showDeleteConfirm(label: string, onSuccess: () => void) {
  * Defaults to "Roarr" as the initial value unless modified.
  * @param label - The title displayed at the top of the dialog.
  * @param onSuccess - Returns the user-inputted string upon confirmation.
+ * @param isEdit - Changes title to 'Edit Annotation'
  */
-function showLabelDialog(label: string, onSuccess: (text: string) => void) {
+function showLabelDialog(label: string, onSuccess: (text: string) => void, isEdit: boolean = false) {
     showOrgLabelDialog({
-        title: label,
+        title: isEdit ? "Edit Annotation" : "New Annotation",
         labelText: "Annotation Name",
-        initialValue: "Roarr",
+        initialValue: label,
         onConfirm: onSuccess
     })
 }
@@ -48,8 +49,6 @@ function configureViewer(renderArea: HTMLElement): any {
     viewer.setPointBudget(1_000_000);
     viewer.loadSettingsFromURL();
     viewer.setBackground("skybox");
-    viewer.setDescription("");
-
 
     return viewer;
 }
@@ -124,7 +123,7 @@ function addViewerAnnotation(viewer: any, title: string, x: number, y: number, z
                 "icon": "edit-3-svgrepo-com.svg",
                 "tooltip": "Edit Title",
                 "onclick": async () => {
-                    showLabelDialog("Edit Annotation", async (updatedTitle: string) => {
+                    showLabelDialog(title, async (updatedTitle: string) => {
                         try {
                             await annotationService.removeAnnotation(anno.title);
                             await annotationService.addAnnotation({
@@ -137,7 +136,7 @@ function addViewerAnnotation(viewer: any, title: string, x: number, y: number, z
                         } catch (error) {
                             showErrorSnackbar(error);
                         }
-                    });
+                    }, true);
                 }
             },
             // Remove action
@@ -206,7 +205,7 @@ async function addAnnotation(viewer: any, title: string, x: number, y: number, z
 
         addViewerAnnotation(viewer, title, x, y, z);
     } catch (error) {
-        showErrorSnackbar(`Failed to add annotation: ${error}`);
+        showErrorSnackbar(error);
     }
 }
 
@@ -216,15 +215,28 @@ async function addAnnotation(viewer: any, title: string, x: number, y: number, z
  * @param viewer - The active Potree Viewer instance.
  */
 function configureClickableView(renderArea: HTMLElement, viewer: any) {
+    const handleAction = (clientX: number, clientY: number) => {
+        const point = raytracePoint(renderArea, viewer, {clientX, clientY} as MouseEvent);
+        if (point) {
+            showLabelDialog("Roarr", async (newTitle) => {
+                await addAnnotation(viewer, newTitle, point.location.x, point.location.y, point.location.z);
+            });
+        }
+    }
+
     renderArea.addEventListener("mousedown", async (event) => {
         const MIDDLE_BUTTON = 4;
         if (event.buttons === MIDDLE_BUTTON) {
-            const point = raytracePoint(renderArea, viewer, event);
-            if (point) {
-                showLabelDialog("New Annotation", async (newTitle) => {
-                    await addAnnotation(viewer, newTitle, point.location.x, point.location.y, point.location.z);
-                });
-            }
+            handleAction(event.clientX, event.clientY);
+        }
+    });
+
+    // Mobile support
+    renderArea.addEventListener("touchstart", async (event) => {
+        event.preventDefault();
+        if (event.touches.length === 1) {
+            const touch = event.touches[0];
+            handleAction(touch.clientX, touch.clientY);
         }
     });
 }
