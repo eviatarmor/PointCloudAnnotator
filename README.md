@@ -62,13 +62,13 @@ Please make sure that these are installed on your computer before trying to run 
 
 | Method | Endpoint | Description                   |
 |--------|----------|-------------------------------|
-| PUT    | `/addAnnotation` | Create new annotation         |
+| PUSH   | `/addAnnotation` | Create new annotation         |
 | GET    | `/getAllAnnotations` | Fetch all annotations         |
 | DELETE | `/removeAnnotation` | Delete annotation by label/ID |
 
 #### Request/Response Examples
 
-**PUT /addAnnotation**
+**PUSH /addAnnotation**
 ```json
 {
   "label": "Roar",
@@ -92,41 +92,3 @@ Please make sure that these are installed on your computer before trying to run 
   "count": 1
 }
 ```
-
-# Deployment
-1. First of all, we need to build the project:
-   - Run `npm run build`, this would create `dist` folder with the built project.
-2. I configured it from AWS Management Console, so we'll need to log in to the console.
-3. We need to create a new permission policy for DynamoDB and the Lambda functions, we can do that in `IAM > Roles > Create Role > Add permissions > Create inline policy`:
-   ```json
-    {
-       "Version": "2012-10-17",
-       "Statement": [
-           {
-               "Effect": "Allow",
-               "Action": [
-                   "dynamodb:Scan", // So our lambdas can scan the table
-                   "dynamodb:PutItem", // add a new element to the table
-                   "dynamodb:DeleteItem" // and delete an element from the table
-               ],
-               "Resource": "arn:aws:dynamodb:eu-north-1:427029328368:table/PointCloudAnnotator"
-           }
-       ]
-    }
-    ```
-4. Now we need to create the lambdas by clicking on `Create function` and use our existing role:
-   - ![Lambdas example](public/instructions/lambdas.png)
-   - Then we need to just copy paste our code into the lambdas.
-   - Lastly, we just need to add a trigger for API Gateway and make sure to use the same API Gateway that we create for the first lambda.
-   - ![API Gateway example](public/instructions/api_gateway.png)
-5. Configuring CORS
-   - We then need to change:
-     - Access-Control-Allow-Origin: Your website URL
-     - Access-Control-Allow-Methods: GET, PUT, OPTIONS, DELETE
-     - Access-Control-Allow-Headers: content-type or *
-   - ![CORS example](public/instructions/cors.png)
-6. Lastly, just create a bucket with the default settings, and change its policy to: 
-   - ![Bucket example](public/instructions/bucket.png)
-   - We also need to enable static website hosting:
-   - ![Bucket hosting example](public/instructions/bucket_static.png)
-   - Upload your `dist` folder and that's it! You're done! (For parallel uploading you can also do `aws s3 sync dist/ s3://bucket-name/`)

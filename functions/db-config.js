@@ -19,7 +19,7 @@ export const docClient = DynamoDBDocumentClient.from(client);
 // CORS headers
 export const corsHeaders = {
     "Access-Control-Allow-Origin": isLocal ? "*" : "http://point-cloud-annotator.com.s3-website.eu-north-1.amazonaws.com",
-    "Access-Control-Allow-Methods": "DELETE, PUT, GET, OPTIONS",
+    "Access-Control-Allow-Methods": "DELETE, PUSH, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Content-Type": "application/json"
 };
