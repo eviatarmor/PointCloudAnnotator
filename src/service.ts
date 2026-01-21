@@ -56,7 +56,7 @@ class AnnotationService {
     async addAnnotation(annotation: Omit<Annotation, 'timestamp'>): Promise<Annotation> {
         try {
             const response = await fetch(`${this.apiUrl}/addAnnotation`, {
-                method: 'PUSH',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },

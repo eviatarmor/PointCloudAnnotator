@@ -62,13 +62,13 @@ Please make sure that these are installed on your computer before trying to run 
 
 | Method | Endpoint | Description                   |
 |--------|----------|-------------------------------|
-| PUSH   | `/addAnnotation` | Create new annotation         |
+| POST   | `/addAnnotation` | Create new annotation         |
 | GET    | `/getAllAnnotations` | Fetch all annotations         |
 | DELETE | `/removeAnnotation` | Delete annotation by label/ID |
 
 #### Request/Response Examples
 
-**PUSH /addAnnotation**
+**POST /addAnnotation**
 ```json
 {
   "label": "Roar",
